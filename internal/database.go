@@ -2,9 +2,7 @@ package database
 
 import (
 	"encoding/json"
-	"log"
 	"os"
-	"time"
 )
 
 
@@ -18,29 +16,23 @@ type databaseSchema struct {
 	Posts map[string]Post `json:"posts"`
 }
 
-type User struct {
-	CreatedAt time.Time `json:"createdAt"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Name      string    `json:"name"`
-	Age       int       `json:"age"`
-}
-
-type Post struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UserEmail string    `json:"userEmail"`
-	Text      string    `json:"text"`
-}
-
 func NewClient(path string) Client {
     c := Client{path}
     return c
 }
 func (c Client) createDB() error {
-    file, err := os.ReadFile(c.Dbpath)
-    json.Marshal(file)
-    return err
+    data, err := json.Marshal(databaseSchema{
+        Users: make(map[string]User),
+        Posts: make(map[string]Post),
+    })
+    if err != nil {
+        return err
+    }
+    err = os.WriteFile(c.Dbpath, data, 0600)
+    if err != nil {
+        return err
+    }
+    return nil
 }
 func (c Client) EnsureDB() error {
     file, _ := os.ReadFile(c.Dbpath)
@@ -49,4 +41,25 @@ func (c Client) EnsureDB() error {
         err = c.createDB()
     }
     return err
+}
+
+func (c Client) updateDB(db databaseSchema) error {
+    data, err := json.Marshal(db)
+    if err != nil {
+        return err
+    }
+    err = os.WriteFile(c.Dbpath, data, 0600)
+    if err != nil {
+       return err
+    }
+    return nil
+}
+func (c Client) readDB() (databaseSchema, error) {
+    data, err := os.ReadFile(c.Dbpath)
+    if err != nil {
+        return databaseSchema{}, err
+    }
+    db := databaseSchema{}
+    err = json.Unmarshal(data, &db)
+    return db, err
 }
