@@ -23,7 +23,7 @@ func (apiCfg apiConfig) handlerUpdateUser(w http.ResponseWriter, r *http.Request
         return
     }
     path := r.URL.Path
-    email := strings.TrimPrefix(path, "http://localhost:8000/users/")
+    email := strings.TrimPrefix(path, "/users/")
     updUser, err := apiCfg.dbClient.UpdateUser(email, params.Password, params.Name, params.Age)
     if err != nil {
         respondWithError(w, http.StatusBadRequest, err)

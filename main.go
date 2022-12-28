@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	database "fun-in-golang/internal"
 	"log"
@@ -27,13 +26,9 @@ func main()  {
         dbClient: dbClient,
     }
 
-    serveMux.HandleFunc("/" , func (w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "Application/json")
-        w.WriteHeader(200)
-        w.Write([]byte("{standard:message}"))
-    })
-    serveMux.HandleFunc("/hi", handler)
-    serveMux.HandleFunc("/err", testErrHandler)
+    serveMux.HandleFunc("/users/", apiCfg.endpointUsersHandler)
+    serveMux.HandleFunc("/users", apiCfg.endpointUsersHandler)
+
     const addr = "localhost:8000"
     server := http.Server{
         Handler: serveMux,
@@ -44,16 +39,6 @@ func main()  {
     fmt.Println("server started on", addr)
     err = server.ListenAndServe()
     log.Fatal(err)
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-    respondWithJSON(w, 200, database.User{
-        Email: "test1@example.com",
-    })
-}
-
-func testErrHandler(w http.ResponseWriter, r *http.Request) {
-    respondWithError(w, 500, errors.New("server error"))
 }
 
 type errorBody struct {

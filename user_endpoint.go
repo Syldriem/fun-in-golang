@@ -10,13 +10,13 @@ import (
 func (apiCfg apiConfig) endpointUsersHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case http.MethodGet:
-        apiCfg.dbClient.GetUser("test1@example.com")
+        apiCfg.handlerGetUser(w, r)
     case http.MethodPost:
-        // handler
+        apiCfg.handlerCreateUser(w, r)
     case http.MethodPut:
-        // handler
+        apiCfg.handlerUpdateUser(w, r)
     case http.MethodDelete:
-        // handler
+        apiCfg.handlerDeleteUser(w, r)
     default:
         respondWithJSON(w, 404, errors.New("method not supported"))
     }
